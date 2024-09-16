@@ -18,7 +18,8 @@ jobs:
 
       - name: "Remove Existing Containers"
         run: |
-          docker rm -f socialmedia-be-container || true
+          docker rm -f app_instance_1 || true
+          docker rm -f app_instance_2 || true
           docker rm -f nginx-container || true
 
       - name: "Create Docker Network"
@@ -30,10 +31,15 @@ jobs:
       - name: "Build Nginx Docker Image"
         run: docker build -f Dockerfile.nginx . -t nginx-proxy
 
-      - name: "Run FastAPI Docker Container"
+      - name: "Run FastAPI Docker Containers"
         run: |
           docker run -d \
-            --name socialmedia-be-container \
+            --name app_instance_1 \
+            --network app-network \
+            socialmedia-be
+
+          docker run -d \
+            --name app_instance_2 \
             --network app-network \
             socialmedia-be
 

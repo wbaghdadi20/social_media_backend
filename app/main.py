@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+import socket
 
 app = FastAPI()
 
@@ -9,3 +10,8 @@ def read_root():
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+@app.get("/instance")
+def get_instance():
+    hostname = socket.gethostname()
+    return {"instance": hostname}
