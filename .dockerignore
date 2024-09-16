@@ -9,12 +9,10 @@ venv/*
 # Ignore local environment files
 .env
 
-# Ignore tests
-tests/*
-
 # Ignore VSCode settings
 .vscode/*
 
 # Ignore Docker files
 .dockerignore
 Dockerfile
+Dockerfile.nginx
