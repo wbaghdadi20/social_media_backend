@@ -14,5 +14,3 @@ venv/*
 
 # Ignore Docker files
 .dockerignore
-Dockerfile
-Dockerfile.nginx
