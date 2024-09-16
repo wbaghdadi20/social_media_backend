@@ -11,6 +11,3 @@ venv/*
 
 # Ignore VSCode settings
 .vscode/*
-
-# Ignore Docker files
-.dockerignore
