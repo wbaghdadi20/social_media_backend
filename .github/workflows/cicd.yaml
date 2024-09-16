@@ -1,0 +1,52 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: "Clean up Unused Docker Images and Build Cache"
+        run: |
+          docker image prune --all --force || true
+          docker builder prune --force || true
+
+      - name: "Remove Existing Containers"
+        run: |
+          docker rm -f socialmedia-be-container || true
+          docker rm -f nginx-container || true
+
+      - name: "Create Docker Network"
+        run: docker network create app-network || true
+
+      - name: "Build FastAPI Docker Image"
+        run: docker build . -t socialmedia-be
+
+      - name: "Run Tests"
+        run: |
+          docker run --rm \
+            socialmedia-be \
+            pytest /usr/src/app/tests
+
+      - name: "Build Nginx Docker Image"
+        run: docker build -f Dockerfile.nginx . -t nginx-proxy
+
+      - name: "Run FastAPI Docker Container"
+        run: |
+          docker run -d \
+            --name socialmedia-be-container \
+            --network app-network \
+            socialmedia-be
+
+      - name: "Run Nginx Docker Container"
+        run: |
+          docker run -d \
+            --name nginx-container \
+            --network app-network \
+            -p 80:80 \
+            nginx-proxy
