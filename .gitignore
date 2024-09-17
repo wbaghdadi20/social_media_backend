@@ -13,3 +13,6 @@ venv/
 
 # VSCode settings
 .vscode/*
+
+# Test coverage
+.coverage
