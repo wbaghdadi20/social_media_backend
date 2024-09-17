@@ -1,5 +1,3 @@
-# app/models.py
-
 import uuid
 from sqlalchemy import (
     Column,

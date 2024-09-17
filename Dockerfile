@@ -12,6 +12,12 @@ RUN pip install --no-cache-dir -r requirements-dev.txt
 # Copy the application code
 COPY . .
 
+# Set environment variables needed for tests (use placeholder values)
+ENV SQLALCHEMY_DATABASE_URL=sqlite:///./test.db
+ENV SECRET_KEY=test_secret_key
+ENV ALGORITHM=HS256
+ENV ACCESS_TOKEN_EXPIRE_MINUTES=30
+
 # Run tests
 RUN pytest /usr/src/app/tests
 

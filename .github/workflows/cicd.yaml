@@ -32,15 +32,28 @@ jobs:
         run: docker build -f Dockerfile.nginx . -t nginx-proxy
 
       - name: "Run FastAPI Docker Containers"
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          ALGORITHM: ${{ secrets.ALGORITHM }}
+          ACCESS_TOKEN_EXPIRE_MINUTES: ${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}
+          SQLALCHEMY_DATABASE_URL: ${{ secrets.SQLALCHEMY_DATABASE_URL }}
         run: |
           docker run -d \
             --name app_instance_1 \
             --network app-network \
+            -e SECRET_KEY=${SECRET_KEY} \
+            -e ALGORITHM=${ALGORITHM} \
+            -e ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES} \
+            -e SQLALCHEMY_DATABASE_URL=${SQLALCHEMY_DATABASE_URL} \
             socialmedia-be
 
           docker run -d \
             --name app_instance_2 \
             --network app-network \
+            -e SECRET_KEY=${SECRET_KEY} \
+            -e ALGORITHM=${ALGORITHM} \
+            -e ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES} \
+            -e SQLALCHEMY_DATABASE_URL=${SQLALCHEMY_DATABASE_URL} \
             socialmedia-be
 
       - name: "Run Nginx Docker Container"
