@@ -65,7 +65,7 @@ def create_user(db_session, username, email, password):
     user = User(
         username=username,
         email=email,
-        password_hash="hashed" + password
+        password="hashed" + password
     )
     db_session.add(user)
     db_session.commit()
@@ -177,11 +177,6 @@ def test_create_user(db_session):
     user = create_user(db_session, 'testuser', 'testuser@example.com', 'password123')
     retrieved_user = db_session.query(User).filter_by(username=user.username).first()
     assert retrieved_user == user
-    # assert retrieved_user.id == user.id
-    # assert retrieved_user.email == user.email
-    # assert retrieved_user.password_hash == user.password_hash
-    # assert retrieved_user.username == user.username
-
 
 def test_unique_username(db_session):
     """
@@ -375,10 +370,6 @@ def test_create_post(db_session, caption):
     post = create_post(db_session, owner_id=user.id, content='This is a test post.', caption=caption)
     retrieved_post = db_session.query(Post).filter_by(id=post.id).first()
     assert retrieved_post == post
-    # assert retrieved_post.id == post.id
-    # assert retrieved_post.content == post.content
-    # assert retrieved_post.caption == post.caption
-    # assert retrieved_post.owner == user
 
 
 @pytest.mark.parametrize("owner_id", [
@@ -458,10 +449,6 @@ def test_create_comment(db_session, use_same_user):
     comment = create_comment(db_session, post_id=post.id, user_id=user2.id, content='This is a test comment.')
     retrieved_comment = db_session.query(Comment).filter_by(id=comment.id).first()
     assert retrieved_comment == comment
-    # assert retrieved_comment.id == comment.id
-    # assert retrieved_comment.content == comment.content
-    # assert retrieved_comment.post == post
-    # assert retrieved_comment.owner == user2
 
 
 @pytest.mark.parametrize("post_id", [
