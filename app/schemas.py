@@ -3,25 +3,56 @@ from typing import Optional
 from uuid import UUID
 from datetime import datetime
 
+# Base model containing common user attributes
 class UserBase(BaseModel):
     username: str = Field(..., min_length=3, max_length=50)
-    email: EmailStr
 
+    model_config = ConfigDict(from_attributes=True)
+
+# Model for user creation (sign-up)
 class UserCreate(UserBase):
+    email: EmailStr
     password: str = Field(..., min_length=8)
 
-class UserInDB(UserBase):
-    id: UUID
-    password: str
-    created_at: datetime
-
     model_config = ConfigDict(from_attributes=True)
 
-class UserOut(UserBase):
+# Model representing the user data stored in the database
+class UserDB(UserCreate):
     id: UUID
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+# Public model for exposing user information without sensitive data
+class UserPublic(UserBase):
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+# Private model for authenticated user details
+class UserPrivate(UserPublic):
+    id: UUID
+    email: EmailStr
+
+    model_config = ConfigDict(from_attributes=True)
+
+# Model representing the token structure
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+# Model for token payload data
+class TokenPayload(BaseModel):
+    email: EmailStr
+    id: UUID
+    username: str
+
+# Response model when returning a token along with user data
+class TokenResponse(Token):
+    user: UserPrivate
+
+    model_config = ConfigDict(from_attributes=True)
+
 
 class PostBase(BaseModel):
     content: str = Field(..., min_length=1)

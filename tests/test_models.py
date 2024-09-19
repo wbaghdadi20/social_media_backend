@@ -1,55 +1,7 @@
 import pytest
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 from app.models import User, Post, Comment, PostLike, CommentLike, Follow
-from app.config.database import Base
 import uuid
-
-# Use an in-memory SQLite database for testing
-TEST_DATABASE_URL = "sqlite:///:memory:"
-
-
-@pytest.fixture(scope='session')
-def engine():
-    """
-    Creates a new SQLAlchemy engine for the testing session.
-    Uses an in-memory SQLite database.
-    """
-    return create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
-
-
-@pytest.fixture(scope='session')
-def BaseModel():
-    """
-    Provides the declarative base model for the session.
-    """
-    return Base
-
-
-@pytest.fixture(scope='function')
-def db_session(engine, BaseModel):
-    """
-    Creates a new database session for a test and ensures a clean state.
-    - Creates all tables before the test.
-    - Drops all tables after the test.
-    - Enables foreign key constraints in SQLite.
-    """
-    # Create all tables
-    BaseModel.metadata.create_all(engine)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    # Enable foreign key constraints for SQLite
-    session.execute(text('PRAGMA foreign_keys=ON'))
-
-    yield session  # This is where the testing happens
-
-    session.rollback()  # Rollback any changes made during the test
-    session.close()
-    # Drop all tables
-    BaseModel.metadata.drop_all(engine)
-
 
 # Helper functions to reduce code duplication
 def create_user(db_session, username, email, password):
