@@ -16,17 +16,21 @@ def get_hashed_password(password: str) -> str:
 def create_user(user_create: UserCreate, db: Session) -> UserPrivate:
     
     # 1. Check if user exists
-    existing_user = user_crud.get_user_by_email(email=user_create.email, db=db)
+    existing_user = user_crud.get_user_by_email_or_username(email=user_create.email, username=user_create.username, db=db)
 
     # 2. If user exists, raise error
     if existing_user:
+        if existing_user.email == user_create.email:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Email is already registered"
+            )
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Email is already registered"
+            detail="Username is already registered"
         )
     
     # 3. Create user and hash password
-    user_create.password = get_hashed_password(user_create.password)
     user_db = user_crud.create_user(user_create=user_create, db=db)
 
     # 4. Return User

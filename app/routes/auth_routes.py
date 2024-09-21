@@ -23,7 +23,7 @@ def login(login_data: UserCreate, db: db_dependency):
     # 2. Generate access token
     token = create_access_token(data=user_data)
     
-    # 3. Return TokenResponse
+    # 3. Return Token
     return Token (
         access_token=token,
         token_type="bearer"

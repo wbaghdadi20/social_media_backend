@@ -4,14 +4,13 @@ from pydantic import EmailStr
 from uuid import UUID
 from datetime import timedelta, datetime, timezone
 from jose import jwt, JWTError
-from jwt.exceptions import ExpiredSignatureError
+from jose.exceptions import ExpiredSignatureError
 from typing import Annotated
 from ..schemas import UserPrivate
 from .config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from ..crud import user_crud
 from ..routes import db_dependency
 
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 oauth2_scheme = HTTPBearer()
 
 token_dependency = Annotated[HTTPAuthorizationCredentials, Depends(oauth2_scheme)]

@@ -2,7 +2,6 @@ from fastapi import Depends, APIRouter, HTTPException, status
 from typing import Annotated
 from ..services import user_service
 from ..schemas import UserCreate, Token, UserPrivate
-from ..config.database import get_db
 from ..config.token import get_current_user, create_access_token
 from uuid import UUID
 import re
@@ -51,9 +50,8 @@ def create_user(user_create: UserCreate, db: db_dependency):
     # 2. Generate Access Token
     token = create_access_token(data=user_data)
     
-    # 3. Return TokenResponse
+    # 3. Return Token
     return Token(
         access_token=token,
-        token_type="bearer",
-        user=user
+        token_type="bearer"
     )

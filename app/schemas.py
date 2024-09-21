@@ -47,13 +47,6 @@ class TokenPayload(BaseModel):
     id: UUID
     username: str
 
-# Response model when returning a token along with user data
-class TokenResponse(Token):
-    user: UserPrivate
-
-    model_config = ConfigDict(from_attributes=True)
-
-
 class PostBase(BaseModel):
     content: str = Field(..., min_length=1)
     caption: Optional[str] = None
