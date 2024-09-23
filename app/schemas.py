@@ -47,6 +47,25 @@ class TokenPayload(BaseModel):
     id: UUID
     username: str
 
+# ----------------- EXCEPTIONS -----------------
+
+class EmailAlreadyRegistered(Exception):
+    def __init__(self):
+        self.message = "Email is already registered"
+        super().__init__(self.message)
+
+class UsernameAlreadyRegistered(Exception):
+    def __init__(self):
+        self.message = "Username is already registered"
+        super().__init__(self.message)
+
+class UserNotFound(Exception):
+    def __init__(self):
+        self.message = "User not found"
+        super().__init__(self.message)
+
+# ----------------- NOT FOR NOW -----------------
+
 class PostBase(BaseModel):
     content: str = Field(..., min_length=1)
     caption: Optional[str] = None

@@ -22,6 +22,9 @@ jobs:
           docker rm -f app_instance_2 || true
           docker rm -f nginx-container || true
 
+      - name: "Create Docker Volume"
+        run: docker volume create db_volume || true
+
       - name: "Create Docker Network"
         run: docker network create app-network || true
 
@@ -41,6 +44,7 @@ jobs:
           docker run -d \
             --name app_instance_1 \
             --network app-network \
+            -v -v db_volume:/usr/src/app/db \
             -e SECRET_KEY=${SECRET_KEY} \
             -e ALGORITHM=${ALGORITHM} \
             -e ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES} \
@@ -50,6 +54,7 @@ jobs:
           docker run -d \
             --name app_instance_2 \
             --network app-network \
+            -v -v db_volume:/usr/src/app/db \
             -e SECRET_KEY=${SECRET_KEY} \
             -e ALGORITHM=${ALGORITHM} \
             -e ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES} \

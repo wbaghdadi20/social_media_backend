@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
-from ..schemas import UserCreate, UserPrivate
+from ..schemas import UserCreate, UserPrivate, EmailAlreadyRegistered, UsernameAlreadyRegistered, UserNotFound
 from ..crud import user_crud as user_crud
 from uuid import UUID
 
@@ -21,14 +21,8 @@ def create_user(user_create: UserCreate, db: Session) -> UserPrivate:
     # 2. If user exists, raise error
     if existing_user:
         if existing_user.email == user_create.email:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Email is already registered"
-            )
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Username is already registered"
-        )
+            raise EmailAlreadyRegistered
+        raise UsernameAlreadyRegistered
     
     # 3. Create user and hash password
     user_db = user_crud.create_user(user_create=user_create, db=db)
@@ -36,17 +30,15 @@ def create_user(user_create: UserCreate, db: Session) -> UserPrivate:
     # 4. Return User
     return UserPrivate.model_validate(user_db, strict=True)
 
-def get_user_by_id(user_id: UUID, db=Session) -> UserPrivate:
+def get_user_by_id(user_id: UUID, db=Session):
 
     # 1. Check if user exists
     user_db = user_crud.get_user_by_id(user_id=user_id, db=db)
 
     # 2. If user doesnt exist, raise error
     if user_db is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User does not exist"
-        )
+        print("here")
+        raise UserNotFound
     
     # 3. Return User
-    return UserPrivate.model_validate(user_db, strict=True)
+    return user_db

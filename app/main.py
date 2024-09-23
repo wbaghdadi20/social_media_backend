@@ -19,12 +19,8 @@ app = FastAPI(
 )
 
 def delete_users(db: Session):
-    try:
-        db.query(models.User).delete()
-        db.commit()
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=status.WS_1011_INTERNAL_ERROR, detail=f"Failed to delete all users. {str(e)}")
+    db.query(models.User).delete()
+    db.commit()
     
 def get_users(db: Session):
     return db.query(models.User).all()

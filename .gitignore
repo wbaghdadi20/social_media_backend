@@ -16,3 +16,6 @@ venv/
 
 # Test coverage
 .coverage
+
+# Database
+db/sql_app.db

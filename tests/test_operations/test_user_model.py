@@ -1,37 +1,11 @@
-# import pytest
-# from sqlalchemy.orm import Session
-# import app.models as models
-# from app.schemas import UserCreate, UserPrivate
-# import app.services.user_service as user_service
-# import app.crud.user_crud as user_crud
-# from ..conftest import engine, TestingSessionLocal
-
-# @pytest.fixture
-# def session():
-#     models.Base.metadata.create_all(bind=engine)
-#     db = TestingSessionLocal()
-
-#     # create test user in db
-#     test_user = models.User(
-#         username="testuser",
-#         email="testuser@example.com",
-#         password=user_service.get_hashed_password("password123")
-#     )
-#     db.add(test_user)
-#     db.commit()
-
-#     yield db
-
-#     db.close()
-#     models.Base.metadata.drop_all(bind=engine)
-
 import pytest
 from sqlalchemy.orm import Session
-from app.schemas import UserCreate, UserPrivate
+from pydantic import ValidationError
+from app.schemas import UserCreate, UserPrivate, EmailAlreadyRegistered, UsernameAlreadyRegistered
 import app.services.user_service as user_service
 import app.crud.user_crud as user_crud
 
-def test_create_user(db_session: Session):
+def test_create_valid_user(db_session: Session):
     """
     Test creating a valid user.
     """
@@ -48,48 +22,134 @@ def test_create_user(db_session: Session):
     user_db_private = UserPrivate.model_validate(user_db, strict=True)
     assert user == user_db_private
 
-# ------------------------
-# --- Additional Tests ---
-# ------------------------
+
+@pytest.mark.parametrize(
+    "user_create, expected_exception, expected_message",
+    [
+        (
+            UserCreate(
+                username="testuser",
+                email="uniqueuser@example.com",
+                password="password123"
+            ),
+            UsernameAlreadyRegistered,
+            "Username is already registered"            
+        ),
+        (
+            UserCreate(
+                username="uniqueuser",
+                email="testuser@example.com",
+                password="password123"
+            ),
+            EmailAlreadyRegistered,
+            "Email is already registered"            
+        ),
+        (
+            UserCreate(
+                username="testuser",
+                email="testuser@example.com",
+                password="password123"
+            ), 
+            EmailAlreadyRegistered,
+            "Email is already registered"            
+        )
+    ]
+)
+def test_create_duplicate_user(
+    db_session: Session,
+    existing_user: UserPrivate,
+    user_create: UserCreate,
+    expected_exception,
+    expected_message
+):
+    """
+    Test that user must be unique (username/email).
+    """
+    with pytest.raises(expected_exception) as exc_info:
+        user_service.create_user(user_create=user_create, db=db_session)
+
+    exception = exc_info.value
+    assert exception.message == expected_message
 
 
-# def test_unique_username(db_session):
-#     """
-#     Test that usernames must be unique.
-#     """
-#     create_user(db_session, 'uniqueuser', 'user1@example.com', 'password1')
-#     with pytest.raises(IntegrityError):
-#         create_user(db_session, 'uniqueuser', 'user2@example.com', 'password2')
+@pytest.mark.parametrize(
+    "user_create_data, expected_exception, expected_message",
+    [
+        (
+            {"username": None, "email": "uniqueuser@example.com", "password": "password123"},  # None
+            ValidationError,
+            "Input should be a valid string"
+        ),
+        (
+            {"username": "A", "email": "uniqueuser@example.com", "password": "password123"},  # too short
+            ValidationError,
+            "String should have at least 3 characters"
+        ),
+        (
+            {"username": "A" * 51, "email": "uniqueuser@example.com", "password": "password123"},  # too long
+            ValidationError,
+            "String should have at most 50 characters"
+        )
+    ]
+)
+def test_invalid_username(
+    db_session: Session,
+    user_create_data: dict,
+    expected_exception,
+    expected_message
+):
+    """
+    Test creating a user with invalid username.
+    """
+    with pytest.raises(expected_exception) as exc_info:
+        user_create = UserCreate(**user_create_data)
+        user_service.create_user(user_create=user_create, db=db_session)
+
+    assert expected_message == exc_info.value.errors()[0]["msg"]    
 
 
-# def test_unique_email(db_session):
-#     """
-#     Test that emails must be unique.
-#     """
-#     create_user(db_session, 'user1', 'uniqueemail@example.com', 'password1')
-#     with pytest.raises(IntegrityError):
-#         create_user(db_session, 'user2', 'uniqueemail@example.com', 'password2')
+# Wont test for all types of bad formatting
+def test_invalid_email(db_session: Session):
+    """
+    Test creating a user with invalid email (None).
+    """
+    user_create_data = {"username": "uniqueuser", "email": None, "password": "password123"}  # None
+    expected_exception = ValidationError
+    expected_message = "Input should be a valid string"
+    
+    with pytest.raises(expected_exception) as exc_info:
+        user_create = UserCreate(**user_create_data)
+        user_service.create_user(user_create=user_create, db=db_session)
+
+    assert expected_message == exc_info.value.errors()[0]["msg"]
 
 
-# def test_invalid_username(db_session):
-#     """
-#     Test creating a user with invalid username.
-#     """
-#     with pytest.raises(IntegrityError):
-#         create_user(db_session, username=None, email='valid@example.com', password='password123')
+@pytest.mark.parametrize(
+    "user_create_data, expected_exception, expected_message",
+    [
+        (
+            {"username": "uniqueuser", "email": "user@example.com", "password": None},  # None
+            ValidationError,
+            "Input should be a valid string"
+        ),
+        (
+            {"username": "uniqueuser", "email": "user@example.com", "password": "A" * 7},  # too short
+            ValidationError,
+            "String should have at least 8 characters"
+        )
+    ]
+)
+def test_invalid_password(
+    db_session: Session,
+    user_create_data: dict,
+    expected_exception,
+    expected_message: str
+):
+    """
+    Test creating a user with invalid password.
+    """
+    with pytest.raises(expected_exception) as exc_info:
+        user_create = UserCreate(**user_create_data)
+        user_service.create_user(user_create=user_create, db=db_session)
 
-
-# def test_invalid_email(db_session):
-#     """
-#     Test creating a user with invalid email.
-#     """
-#     with pytest.raises(IntegrityError):
-#         create_user(db_session, username='validuser', email=None, password='password123')
-
-
-# def test_invalid_password(db_session):
-#     """
-#     Test creating a user with invalid password.
-#     """
-#     with pytest.raises(TypeError):
-#         create_user(db_session, username='validuser', email='valid@example.com', password=None)
+    assert expected_message == exc_info.value.errors()[0]["msg"]

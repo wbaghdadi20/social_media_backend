@@ -6,9 +6,9 @@ from datetime import timedelta, datetime, timezone
 from jose import jwt, JWTError
 from jose.exceptions import ExpiredSignatureError
 from typing import Annotated
-from ..schemas import UserPrivate
+from ..schemas import UserPrivate, UserNotFound
 from .config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
-from ..crud import user_crud
+from ..services import user_service
 from ..routes import db_dependency
 
 oauth2_scheme = HTTPBearer()
@@ -30,7 +30,7 @@ async def get_current_user(credentials: token_dependency, db: db_dependency) -> 
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
-    )
+    )    
     token = credentials.credentials
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -38,7 +38,7 @@ async def get_current_user(credentials: token_dependency, db: db_dependency) -> 
         id: UUID = UUID(payload.get("id"))
         username: str = payload.get("username")
         if email is None or id is None or username is None:
-            raise credentials_exception
+                raise credentials_exception
     except ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -47,7 +47,8 @@ async def get_current_user(credentials: token_dependency, db: db_dependency) -> 
         )
     except JWTError:
         raise credentials_exception
-    user = user_crud.get_user_by_id(user_id=id, db=db)
-    if user is None:
+    try:
+        user = user_service.get_user_by_id(user_id=id, db=db)
+    except UserNotFound:
         raise credentials_exception
     return UserPrivate.model_validate(user, strict=True)
