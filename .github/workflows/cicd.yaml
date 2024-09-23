@@ -44,7 +44,7 @@ jobs:
           docker run -d \
             --name app_instance_1 \
             --network app-network \
-            -v -v db_volume:/usr/src/app/db \
+            -v db_volume:/usr/src/app/db \
             -e SECRET_KEY=${SECRET_KEY} \
             -e ALGORITHM=${ALGORITHM} \
             -e ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES} \
@@ -54,7 +54,7 @@ jobs:
           docker run -d \
             --name app_instance_2 \
             --network app-network \
-            -v -v db_volume:/usr/src/app/db \
+            -v db_volume:/usr/src/app/db \
             -e SECRET_KEY=${SECRET_KEY} \
             -e ALGORITHM=${ALGORITHM} \
             -e ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES} \
