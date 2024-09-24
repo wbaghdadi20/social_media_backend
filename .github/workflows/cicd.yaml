@@ -11,10 +11,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # - name: "Clean up Docker Images and Containers"
-      #   run: |
-      #     docker rm -f app_instance_1 app_instance_2 || true
-      #     docker image prune --all --force || true
+      - name: "Clean up Docker Images and Containers"
+        run: |
+          docker rm -f app_instance_1 app_instance_2 || true
+          docker image prune --all --force || true
 
       - name: "Build FastAPI Test Image"
         run: docker build --target test . -t test_app
