@@ -87,4 +87,4 @@ jobs:
             --name nginx_container \
             --network app-network \
             -p 80:80 \
-            nginx-proxy
+            nginx
