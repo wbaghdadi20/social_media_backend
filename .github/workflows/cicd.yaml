@@ -9,26 +9,35 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: "Clean up Docker Images and Containers"
+      - name: "Clean up Docker Images and Containers and Networks"
         run: |
-          docker rm -f app_instance_1 app_instance_2 load_balancer postgres
-          docker image prune --all --force || true
+          docker rm -f app_instance_1 app_instance_2 load_balancer postgres test_postgres || true
+          docker image prune --all --force
+          docker network prune --force
 
-      - name: "Build FastAPI Test Image"
-        run: docker build --target test . -t test_app
+      - name: "Create Docker Networks"
+        run: |
+          docker network create app_network
+          docker network create test_app_network
 
-      - name: "Run Test PostgreSQL Docker Container"
+      - name: "Pull Latest PostgreSQL Image"
+        run: docker pull postgres:latest
+          
+      - name: "Run Test-PostgreSQL Docker Container"
         run: |
           docker run -d \
-            --name test_postgres \
-            --network test_app_network \
-            -e POSTGRES_USER=testuser \
-            -e POSTGRES_PASSWORD=testpassword \
-            -e POSTGRES_DB=test_db \
-            postgres:latest || true
-
+          --name test_postgres \
+          --network test_app_network \
+          -e POSTGRES_USER=testuser \
+          -e POSTGRES_PASSWORD=testpassword \
+          -e POSTGRES_DB=test_db \
+          postgres:latest
+          
+      - name: "Build FastAPI Test Image"
+        run: docker build --target test . -t test_app
+        
       - name: "Run Tests"
         run: |
           docker run --rm \
@@ -81,10 +90,13 @@ jobs:
             -e SQLALCHEMY_DATABASE_URL=${SQLALCHEMY_DATABASE_URL} \
             app
 
+      - name: "Build Nginx Docker Image"
+        run: docker build -f Dockerfile.nginx . -t nginx
+
       - name: "Run Nginx Docker Container"
         run: |
           docker run -d \
             --name load_balancer \
             --network app_network \
             -p 80:80 \
-            nginx || true
+            nginx
