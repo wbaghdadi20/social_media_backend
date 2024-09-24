@@ -19,16 +19,6 @@ jobs:
       - name: "Build FastAPI Test Image"
         run: docker build --target test . -t test_app
 
-      - name: "Run Test PostgreSQL Docker Container"
-        run: |
-          docker run -d \
-            --name test_postgres \
-            --network test_app_network \
-            -e POSTGRES_USER=testuser \
-            -e POSTGRES_PASSWORD=testpassword \
-            -e POSTGRES_DB=test_db \
-            postgres:latest
-
       - name: "Run Tests"
         run: |
           docker run --rm \
