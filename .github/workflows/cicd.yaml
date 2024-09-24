@@ -61,7 +61,7 @@ jobs:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           ALGORITHM: ${{ secrets.ALGORITHM }}
           ACCESS_TOKEN_EXPIRE_MINUTES: ${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}
-          SQLALCHEMY_DATABASE_URL: "postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@postgres/${{ secrets.POSTGRES_DB }}"
+          SQLALCHEMY_DATABASE_URL: ${{ secrets.SQLALCHEMY_DATABASE_URL }}
         run: |
           docker run -d \
             --name app_instance_1 \
