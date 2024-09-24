@@ -70,7 +70,7 @@ jobs:
             -e ALGORITHM=${ALGORITHM} \
             -e ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES} \
             -e SQLALCHEMY_DATABASE_URL=${SQLALCHEMY_DATABASE_URL} \
-            socialmedia-be
+            app
 
           docker run -d \
             --name app_instance_2 \
@@ -79,7 +79,7 @@ jobs:
             -e ALGORITHM=${ALGORITHM} \
             -e ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES} \
             -e SQLALCHEMY_DATABASE_URL=${SQLALCHEMY_DATABASE_URL} \
-            socialmedia-be
+            app
 
       - name: "Run Nginx Docker Container"
         run: |
