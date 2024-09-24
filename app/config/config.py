@@ -8,6 +8,7 @@ def get_env_variable(name):
     value = os.getenv(name)
     if value is None:
         raise ValueError(f"Missing required environment variable: {name}")
+    print(f"{name}:", value)
     return value
 
 SQLALCHEMY_DATABASE_URL = get_env_variable("SQLALCHEMY_DATABASE_URL")

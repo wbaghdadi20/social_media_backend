@@ -11,40 +11,61 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: "Clean up Docker Images and Build Cache"
+      # - name: "Clean up Docker Images and Containers"
+      #   run: |
+      #     docker rm -f app_instance_1 app_instance_2 || true
+      #     docker image prune --all --force || true
+
+      - name: "Build FastAPI Test Image"
+        run: docker build --target test . -t test_app
+
+      - name: "Run Test PostgreSQL Docker Container"
         run: |
-          docker image prune --all --force || true
-          docker builder prune --force || true
+          docker run -d \
+            --name test_postgres \
+            --network test_app_network \
+            -e POSTGRES_USER=testuser \
+            -e POSTGRES_PASSWORD=testpassword \
+            -e POSTGRES_DB=test_db \
+            postgres:latest
 
-      - name: "Remove Existing Containers"
+      - name: "Run Tests"
         run: |
-          docker rm -f app_instance_1 || true
-          docker rm -f app_instance_2 || true
-          docker rm -f nginx-container || true
+          docker run --rm \
+            --network test_app_network \
+            test_app
 
-      - name: "Create Docker Volume"
-        run: docker volume create db_volume || true
+      - name: "Post Test Clean up"
+        run: docker rmi test_app
 
-      - name: "Create Docker Network"
-        run: docker network create app-network || true
+      - name: "Build FastAPI Production Image"
+        run: docker build --target prod . -t app
 
-      - name: "Build FastAPI Docker Image"
-        run: docker build . -t socialmedia-be
-
-      - name: "Build Nginx Docker Image"
-        run: docker build -f Dockerfile.nginx . -t nginx-proxy
+      - name: "Run Production PostgreSQL Docker Container"
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        run: |
+          docker run -d \
+            --name postgres \
+            --network app_network \
+            -e POSTGRES_USER=${POSTGRES_USER} \
+            -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
+            -e POSTGRES_DB=${POSTGRES_DB} \
+            -v pg_prod_data:/var/lib/postgresql/data \
+            postgres:latest
 
       - name: "Run FastAPI Docker Containers"
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           ALGORITHM: ${{ secrets.ALGORITHM }}
           ACCESS_TOKEN_EXPIRE_MINUTES: ${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}
-          SQLALCHEMY_DATABASE_URL: ${{ secrets.SQLALCHEMY_DATABASE_URL }}
+          SQLALCHEMY_DATABASE_URL: "postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@postgres/${{ secrets.POSTGRES_DB }}"
         run: |
           docker run -d \
             --name app_instance_1 \
-            --network app-network \
-            -v db_volume:/usr/src/app/db \
+            --network app_network \
             -e SECRET_KEY=${SECRET_KEY} \
             -e ALGORITHM=${ALGORITHM} \
             -e ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES} \
@@ -53,8 +74,7 @@ jobs:
 
           docker run -d \
             --name app_instance_2 \
-            --network app-network \
-            -v db_volume:/usr/src/app/db \
+            --network app_network \
             -e SECRET_KEY=${SECRET_KEY} \
             -e ALGORITHM=${ALGORITHM} \
             -e ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES} \
@@ -64,7 +84,7 @@ jobs:
       - name: "Run Nginx Docker Container"
         run: |
           docker run -d \
-            --name nginx-container \
+            --name nginx_container \
             --network app-network \
             -p 80:80 \
             nginx-proxy
