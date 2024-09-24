@@ -84,7 +84,7 @@ jobs:
       - name: "Run Nginx Docker Container"
         run: |
           docker run -d \
-            --name nginx_container \
+            --name load_balancer \
             --network app_network \
             -p 80:80 \
-            nginx
+            nginx || true
