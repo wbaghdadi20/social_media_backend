@@ -13,7 +13,7 @@ jobs:
 
       - name: "Clean up Docker Images and Containers"
         run: |
-          docker rm -f app_instance_1 app_instance_2 || true
+          docker rm -f app_instance_1 app_instance_2 load_balancer postgres
           docker image prune --all --force || true
 
       - name: "Build FastAPI Test Image"
@@ -54,7 +54,7 @@ jobs:
             -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
             -e POSTGRES_DB=${POSTGRES_DB} \
             -v pg_prod_data:/var/lib/postgresql/data \
-            postgres:latest || true
+            postgres:latest
 
       - name: "Run FastAPI Docker Containers"
         env:
