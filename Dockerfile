@@ -26,21 +26,16 @@ FROM base AS test
 RUN pip install --no-cache-dir -r requirements-dev.txt
 
 # Set default environment variables for testing
-ENV SQLALCHEMY_DATABASE_URL=postgresql://testuser:testpassword@test_postgres/test_db
+ENV SQLALCHEMY_DATABASE_URL=postgresql://testuser:testpassword@test_postgres:5432/test_db
 ENV SECRET_KEY=test_secret_key
 ENV ALGORITHM=HS256
 ENV ACCESS_TOKEN_EXPIRE_MINUTES=30
 
 # Set ENTRYPOINT to use wait-for-it.sh to wait for the test database
-ENTRYPOINT ["/wait-for-it.sh", "test_postgres", "--"]
-
-CMD ["pytest", "/usr/src/app/tests"]
+ENTRYPOINT ["/wait-for-it.sh", "test_postgres:5432", "--", "pytest", "/usr/src/app/tests"]
 
 # Production Stage
 FROM base AS prod
 
 # Set ENTRYPOINT to use wait-for-it.sh to wait for the database
-ENTRYPOINT ["/wait-for-it.sh", "postgres", "--"]
-
-# Set default command to start uvicorn
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["/wait-for-it.sh", "postgres:5432", "--", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

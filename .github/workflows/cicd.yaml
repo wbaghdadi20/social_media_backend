@@ -24,7 +24,7 @@ jobs:
 
       - name: "Pull Latest PostgreSQL Image"
         run: docker pull postgres:latest
-          
+
       - name: "Run Test-PostgreSQL Docker Container"
         run: |
           docker run -d \
@@ -34,15 +34,15 @@ jobs:
           -e POSTGRES_PASSWORD=testpassword \
           -e POSTGRES_DB=test_db \
           postgres:latest
-          
+
       - name: "Build FastAPI Test Image"
         run: docker build --target test . -t test_app
-        
+
       - name: "Run Tests"
         run: |
           docker run --rm \
-            --network test_app_network \
-            test_app
+          --network test_app_network \
+          test_app
 
       - name: "Post Test Clean up"
         run: docker rmi test_app
@@ -57,13 +57,13 @@ jobs:
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
         run: |
           docker run -d \
-            --name postgres \
-            --network app_network \
-            -e POSTGRES_USER=${POSTGRES_USER} \
-            -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
-            -e POSTGRES_DB=${POSTGRES_DB} \
-            -v pg_prod_data:/var/lib/postgresql/data \
-            postgres:latest
+          --name postgres \
+          --network app_network \
+          -e POSTGRES_USER=${POSTGRES_USER} \
+          -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
+          -e POSTGRES_DB=${POSTGRES_DB} \
+          -v pg_prod_data:/var/lib/postgresql/data \
+          postgres:latest
 
       - name: "Run FastAPI Docker Containers"
         env:
@@ -73,22 +73,22 @@ jobs:
           SQLALCHEMY_DATABASE_URL: ${{ secrets.SQLALCHEMY_DATABASE_URL }}
         run: |
           docker run -d \
-            --name app_instance_1 \
-            --network app_network \
-            -e SECRET_KEY=${SECRET_KEY} \
-            -e ALGORITHM=${ALGORITHM} \
-            -e ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES} \
-            -e SQLALCHEMY_DATABASE_URL=${SQLALCHEMY_DATABASE_URL} \
-            app
+          --name app_instance_1 \
+          --network app_network \
+          -e SECRET_KEY=${SECRET_KEY} \
+          -e ALGORITHM=${ALGORITHM} \
+          -e ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES} \
+          -e SQLALCHEMY_DATABASE_URL=${SQLALCHEMY_DATABASE_URL} \
+          app
 
           docker run -d \
-            --name app_instance_2 \
-            --network app_network \
-            -e SECRET_KEY=${SECRET_KEY} \
-            -e ALGORITHM=${ALGORITHM} \
-            -e ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES} \
-            -e SQLALCHEMY_DATABASE_URL=${SQLALCHEMY_DATABASE_URL} \
-            app
+          --name app_instance_2 \
+          --network app_network \
+          -e SECRET_KEY=${SECRET_KEY} \
+          -e ALGORITHM=${ALGORITHM} \
+          -e ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES} \
+          -e SQLALCHEMY_DATABASE_URL=${SQLALCHEMY_DATABASE_URL} \
+          app
 
       - name: "Build Nginx Docker Image"
         run: docker build -f Dockerfile.nginx . -t nginx
@@ -96,7 +96,7 @@ jobs:
       - name: "Run Nginx Docker Container"
         run: |
           docker run -d \
-            --name load_balancer \
-            --network app_network \
-            -p 80:80 \
-            nginx
+          --name load_balancer \
+          --network app_network \
+          -p 80:80 \
+          nginx
