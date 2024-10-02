@@ -1,5 +1,5 @@
-from fastapi import Depends, FastAPI, HTTPException, status
-from sqlalchemy.orm import Session
+from fastapi import Depends, FastAPI
+from sqlalchemy.orm import Session, selectinload
 from typing import Annotated
 import socket
 from . import models
@@ -23,7 +23,10 @@ def delete_users(db: Session):
     db.commit()
     
 def get_users(db: Session):
-    return db.query(models.User).all()
+    return db.query(models.User).options(
+        selectinload(models.User.following),
+        selectinload(models.User.followers)
+    ).all()
 
 db_dependency = Annotated[Session, Depends(get_db)]
 

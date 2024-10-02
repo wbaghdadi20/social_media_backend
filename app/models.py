@@ -2,6 +2,7 @@ import uuid
 from sqlalchemy import (
     Column,
     String,
+    PrimaryKeyConstraint,
     ForeignKey,
     DateTime,
     func,
@@ -82,10 +83,14 @@ class CommentLike(Base):
 class Follow(Base):
     __tablename__ = 'follows'
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    follower_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
-    followed_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    __table_args__ = (
+        PrimaryKeyConstraint('follower_id', 'followed_id'),
+    )
+    
+    # add cascade if deleted at db level without going through ORM 
+    follower_id = Column(UUID(as_uuid=True), ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    followed_id = Column(UUID(as_uuid=True), ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    follower_since = Column(DateTime(timezone=True), server_default=func.now())
 
     follower = relationship('User', foreign_keys=[follower_id], back_populates='following')
     followed = relationship('User', foreign_keys=[followed_id], back_populates='followers')

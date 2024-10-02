@@ -14,3 +14,6 @@ venv/*
 
 # Ignore test coverage
 .coverage
+
+# Shell script
+local_dev_test.ps1

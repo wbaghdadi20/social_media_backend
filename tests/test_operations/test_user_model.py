@@ -28,7 +28,7 @@ def test_create_valid_user(db_session: Session):
     [
         (
             UserCreate(
-                username="testuser",
+                username="test_user",
                 email="uniqueuser@example.com",
                 password="password123"
             ),
@@ -38,7 +38,7 @@ def test_create_valid_user(db_session: Session):
         (
             UserCreate(
                 username="uniqueuser",
-                email="testuser@example.com",
+                email="test_user@example.com",
                 password="password123"
             ),
             EmailAlreadyRegistered,
@@ -46,8 +46,8 @@ def test_create_valid_user(db_session: Session):
         ),
         (
             UserCreate(
-                username="testuser",
-                email="testuser@example.com",
+                username="test_user",
+                email="test_user@example.com",
                 password="password123"
             ), 
             EmailAlreadyRegistered,

@@ -26,10 +26,10 @@ FROM base AS test
 RUN pip install --no-cache-dir -r requirements-dev.txt
 
 # Set default environment variables for testing
-ENV SQLALCHEMY_DATABASE_URL=postgresql://testuser:testpassword@test_postgres:5432/test_db
 ENV SECRET_KEY=test_secret_key
 ENV ALGORITHM=HS256
 ENV ACCESS_TOKEN_EXPIRE_MINUTES=30
+ENV SQLALCHEMY_DATABASE_URL=postgresql://test_user:test_password@test_postgres:5432/test_db
 
 # Set ENTRYPOINT to use wait-for-it.sh to wait for the test database
 ENTRYPOINT ["/wait-for-it.sh", "test_postgres:5432", "--", "pytest", "/usr/src/app/tests"]

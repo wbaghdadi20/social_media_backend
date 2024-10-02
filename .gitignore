@@ -19,3 +19,6 @@ venv/
 
 # Database
 db/sql_app.db
+
+# Shell script
+local_dev_test.ps1

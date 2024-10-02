@@ -1,5 +1,6 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy.orm import Session
 from pydantic import EmailStr
 from uuid import UUID
 from datetime import timedelta, datetime, timezone
@@ -8,8 +9,8 @@ from jose.exceptions import ExpiredSignatureError
 from typing import Annotated
 from ..schemas import UserPrivate, UserNotFound
 from .config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from .database import get_db
 from ..services import user_service
-from ..routes import db_dependency
 
 oauth2_scheme = HTTPBearer()
 
@@ -25,7 +26,7 @@ def create_access_token(data: dict, expire_date: timedelta | None = None):
     encode_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encode_jwt
 
-async def get_current_user(credentials: token_dependency, db: db_dependency) -> UserPrivate:
+async def get_current_user(credentials: token_dependency, db: Session = Depends(get_db)) -> UserPrivate:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -51,4 +52,4 @@ async def get_current_user(credentials: token_dependency, db: db_dependency) -> 
         user = user_service.get_user_by_id(user_id=id, db=db)
     except UserNotFound:
         raise credentials_exception
-    return UserPrivate.model_validate(user, strict=True)
+    return user

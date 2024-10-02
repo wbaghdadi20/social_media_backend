@@ -14,8 +14,8 @@ jobs:
       - name: "Clean up Docker Images and Containers and Networks"
         run: |
           docker rm -f app_instance_1 app_instance_2 load_balancer postgres test_postgres || true
-          docker image prune --all --force
-          docker network prune --force
+          docker rmi app || true
+          docker network prune --force || true
 
       - name: "Create Docker Networks"
         run: |
@@ -30,9 +30,11 @@ jobs:
           docker run -d \
           --name test_postgres \
           --network test_app_network \
-          -e POSTGRES_USER=testuser \
-          -e POSTGRES_PASSWORD=testpassword \
+          -p 2345:5432 \
+          -e POSTGRES_USER=test_user \
+          -e POSTGRES_PASSWORD=test_password \
           -e POSTGRES_DB=test_db \
+          -v pg_test_data:/var/lib/postgresql/data \
           postgres:latest
 
       - name: "Build FastAPI Test Image"
@@ -59,6 +61,7 @@ jobs:
           docker run -d \
           --name postgres \
           --network app_network \
+          -p 5432:5432 \
           -e POSTGRES_USER=${POSTGRES_USER} \
           -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
           -e POSTGRES_DB=${POSTGRES_DB} \

@@ -40,6 +40,7 @@ def db_session(db_engine):
 @pytest.fixture(scope="function")
 def client(db_session):
     print("client")
+    print(SQLALCHEMY_DATABASE_URL)
     """
     Fixture to provide a TestClient with dependency overrides.
     Useful for integration tests involving routes/endpoints.
@@ -62,8 +63,8 @@ def existing_user(db_session: Session):
     Fixture to pre-populate the db with a user
     """
     user_create = UserCreate(
-        username="testuser",
-        email="testuser@example.com",
+        username="test_user",
+        email="test_user@example.com",
         password="password123"
     )
     return user_service.create_user(

@@ -9,7 +9,7 @@ def test_login_valid_user(
     db_session: Session,
     existing_user: UserPrivate
 ):
-    user_create_data = {"username": "testuser", "email": "testuser@example.com", "password": "password123"}
+    user_create_data = {"username": "test_user", "email": "test_user@example.com", "password": "password123"}
     response = client.post(
         "/auth/login",
         json=user_create_data
@@ -107,7 +107,7 @@ def test_login_valid_user_multiple_times(
     db_session: Session,
     existing_user: UserPrivate
 ):
-    user_create_data = {"username": "testuser", "email": "testuser@example.com", "password": "password123"}
+    user_create_data = {"username": "test_user", "email": "test_user@example.com", "password": "password123"}
     for i in range(5):
         response = client.post(
             "/auth/login",

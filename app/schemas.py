@@ -47,6 +47,12 @@ class TokenPayload(BaseModel):
     id: UUID
     username: str
 
+class FollowBase(BaseModel):
+    follower_id: UUID
+    followed_id: UUID
+
+    model_config = ConfigDict(from_attributes=True)
+
 # ----------------- EXCEPTIONS -----------------
 
 class EmailAlreadyRegistered(Exception):
@@ -63,6 +69,27 @@ class UserNotFound(Exception):
     def __init__(self):
         self.message = "User not found"
         super().__init__(self.message)
+
+class CannotFollowSelf(Exception):
+    def __init__(self):
+        self.message = "User can't follow themselves"
+        super().__init__(self.message)
+
+class CannotUnFollowSelf(Exception):
+    def __init__(self):
+        self.message = "User can't unfollow themselves"
+        super().__init__(self.message)
+
+class AlreadyFollowing(Exception):
+    def __init__(self):
+        self.message = "You are already following this user"
+        super().__init__(self.message)
+
+class NotFollowing(Exception):
+    def __init__(self):
+        self.message = "User can't unfollow user they dont follow"
+        super().__init__(self.message)
+
 
 # ----------------- NOT FOR NOW -----------------
 
@@ -120,15 +147,11 @@ class CommentLikeOut(CommentLikeBase):
 
     model_config = ConfigDict(from_attributes=True)
 
-class FollowBase(BaseModel):
-    follower_id: UUID
-    followed_id: UUID
+# class FollowCreate(FollowBase):
+#     pass
 
-class FollowCreate(FollowBase):
-    pass
+# class FollowOut(FollowBase):
+#     id: UUID
+#     created_at: datetime
 
-class FollowOut(FollowBase):
-    id: UUID
-    created_at: datetime
-
-    model_config = ConfigDict(from_attributes=True)
+#     model_config = ConfigDict(from_attributes=True)
