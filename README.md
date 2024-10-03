@@ -22,7 +22,7 @@ The project is hosted on an EC2 instance with Docker. The EC2 instance runs the 
 2. `app_instance_1` and `app_instance_2`: Two FastAPI application instances for redundancy and load balancing.
 3. `load_balancer`: Nginx container serving as the load balancer to distribute traffic between the application instances.
 
-You can access the live application on the following link: [Social Media Backend Instance](http://54.176.191.192/)
+You can access the live application on the following link: [Social Media Backend Instance](http://54.176.191.192/docs)
 
 ---
 
@@ -32,11 +32,11 @@ To ensure the security and flexibility of the application, several environment v
 
 ### List of Environment Variables
 
-| Variable Name       | Description                                                                | Generation/Recommendation                                                             |
-| ------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `POSTGRES_USER`     | Username for the PostgreSQL database.                                      | **Create your own.** Choose a strong username for database access.                    |
-| `POSTGRES_PASSWORD` | Password for the PostgreSQL database user.                                 | **Create your own.** Use a strong, secure password.                                   |
-| `POSTGRES_DB`       | Name of the PostgreSQL database.                                           | **Create your own.** Choose a meaningful name for your database.                      |
+| Variable Name       | Description                                                                | Generation/Recommendation                                                                                                  |
+| ------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `POSTGRES_USER`     | Username for the PostgreSQL database.                                      | **Create your own.** Choose a strong username for database access.                                                         |
+| `POSTGRES_PASSWORD` | Password for the PostgreSQL database user.                                 | **Create your own.** Use a strong, secure password.                                                                        |
+| `POSTGRES_DB`       | Name of the PostgreSQL database.                                           | **Create your own.** Choose a meaningful name for your database.                                                           |
 | `SECRET_KEY`        | Secret key used for JWT authentication and other cryptographic operations. | **Generate your own.** Use a secure random string. You can generate one by running `openssl rand -hex 32` in your terminal |
 
 ---
