@@ -4,8 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from app.main import app
 import app.models as models
-from app.schemas import UserCreate
-import app.services.user_service as user_service
+from app.schemas import UserCreate, Token
+import app.services.auth_service as auth_service
 from app.config.database import get_db
 from app.config.config import SQLALCHEMY_DATABASE_URL
 
@@ -67,7 +67,7 @@ def existing_user(db_session: Session):
         email="test_user@example.com",
         password="password123"
     )
-    return user_service.create_user(
+    return auth_service.create_user(
         user_create=user_create,
         db=db_session
     )

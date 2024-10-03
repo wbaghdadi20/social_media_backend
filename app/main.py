@@ -11,47 +11,34 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Social Media Backend API",
-    description="API for managing social media backend services",
+    description="API for managing social media backend services, including user authentication, post management, and social interactions.",
     version="1.0.0",
     openapi_tags=[
-        {"name": "System", "description": "System-level endpoints for health and instance information"}
+        {
+            "name": "System", 
+            "description": "System-level endpoints for health checks, instance information, and basic API operations."
+        },
+        {
+            "name": "Users", 
+            "description": "Routes to handle all user-related actions"
+        },
+        {
+            "name": "Auth", 
+            "description": "Routes to handle user authentication and managing access tokens."
+        }
     ]
 )
 
-def delete_users(db: Session):
-    db.query(models.User).delete()
-    db.commit()
-    
-def get_users(db: Session):
-    return db.query(models.User).options(
-        selectinload(models.User.following),
-        selectinload(models.User.followers)
-    ).all()
-
 db_dependency = Annotated[Session, Depends(get_db)]
 
-@app.get("/", tags=["System"])
+@app.get("/", tags=["System"], description="Provides a welcome message and confirms that the API is running.")
 def read_root():
     return {"message": "Welcome to the Social Media Backend API"}
 
-@app.get("/health", tags=["System"])
-def health_check():
-    return {"status": "ok"}
-
-@app.get("/instance", tags=["System"])
+@app.get("/instance", tags=["System"], description="Returns the hostname of the current instance for load balancing checks. Use this route to verify which server instance is handling the request (2 instances).")
 def get_instance():
     hostname = socket.gethostname()
     return {"instance": hostname}
-
-@app.delete("/delete-all-users", tags=["System"], description="Helper to delete all users easily")
-def delete_all_users(db: db_dependency):
-    delete_users(db=db)
-    return {"message": "All users deleted successfully"}
-
-@app.get("/get-all-users", tags=["System"], description="Helper to get all users easily")
-def get_all_users(db: db_dependency):
-    return get_users(db=db)
-
 
 app.include_router(user_router)
 app.include_router(auth_router)

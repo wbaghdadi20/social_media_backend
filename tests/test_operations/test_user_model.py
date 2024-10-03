@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy.orm import Session
 from pydantic import ValidationError
 from app.schemas import UserCreate, UserPrivate, EmailAlreadyRegistered, UsernameAlreadyRegistered
-import app.services.user_service as user_service
+import app.services.auth_service as auth_service
 import app.crud.user_crud as user_crud
 
 def test_create_valid_user(db_session: Session):
@@ -14,7 +14,7 @@ def test_create_valid_user(db_session: Session):
         email="uniqueuser@example.com",
         password="password123"
     )
-    user = user_service.create_user(
+    user = auth_service.create_user(
         user_create=user_create,
         db=db_session
     )
@@ -66,7 +66,7 @@ def test_create_duplicate_user(
     Test that user must be unique (username/email).
     """
     with pytest.raises(expected_exception) as exc_info:
-        user_service.create_user(user_create=user_create, db=db_session)
+        auth_service.create_user(user_create=user_create, db=db_session)
 
     exception = exc_info.value
     assert exception.message == expected_message
@@ -103,7 +103,7 @@ def test_invalid_username(
     """
     with pytest.raises(expected_exception) as exc_info:
         user_create = UserCreate(**user_create_data)
-        user_service.create_user(user_create=user_create, db=db_session)
+        auth_service.create_user(user_create=user_create, db=db_session)
 
     assert expected_message == exc_info.value.errors()[0]["msg"]    
 
@@ -119,7 +119,7 @@ def test_invalid_email(db_session: Session):
     
     with pytest.raises(expected_exception) as exc_info:
         user_create = UserCreate(**user_create_data)
-        user_service.create_user(user_create=user_create, db=db_session)
+        auth_service.create_user(user_create=user_create, db=db_session)
 
     assert expected_message == exc_info.value.errors()[0]["msg"]
 
@@ -150,6 +150,6 @@ def test_invalid_password(
     """
     with pytest.raises(expected_exception) as exc_info:
         user_create = UserCreate(**user_create_data)
-        user_service.create_user(user_create=user_create, db=db_session)
+        auth_service.create_user(user_create=user_create, db=db_session)
 
     assert expected_message == exc_info.value.errors()[0]["msg"]
