@@ -57,3 +57,8 @@ def unfollow_user(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
 
     return {"message": f"{current_user.username} successfully unfollowed {username_to_unfollow}"}
+
+
+@router.get("/view_follow_list", response_model=dict, description="Allows users to view follow relationships of any user given their username")
+def view_follow_list():
+    pass

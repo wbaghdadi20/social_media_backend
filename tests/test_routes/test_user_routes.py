@@ -293,3 +293,15 @@ def test_invalid_unfollow(
     )
     assert response.status_code == expected_status_code
     assert response.json()["detail"] == expected_detail
+
+
+def test_follow_deletes_when_user_delete(
+    client: TestClient,
+    db_session: Session,
+    existing_user: User,
+    authenticated_user_token: str
+):
+    _ = client.post(
+        "users/follow?username_to_follow=test_user",
+        headers={"Authorization": f"Bearer {authenticated_user_token}"}
+    )

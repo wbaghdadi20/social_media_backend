@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from app.main import app
 import app.models as models
-from app.schemas import UserCreate, Token
+from app.schemas import UserCreate
 import app.services.auth_service as auth_service
 from app.config.database import get_db
 from app.config.config import SQLALCHEMY_DATABASE_URL
