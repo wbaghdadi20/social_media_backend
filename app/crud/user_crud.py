@@ -22,8 +22,14 @@ def get_user_by_login(login_data: UserCreate, db: Session) -> User:
         return user
     return None
 
-def get_follow(follower_id: UUID, followed_id: UUID, db: Session) -> Follow:
+def get_specific_follow(follower_id: UUID, followed_id: UUID, db: Session) -> Follow:
     return db.query(Follow).filter(Follow.follower_id == follower_id, Follow.followed_id == followed_id).first()
+
+def get_following(follower_id: UUID, db: Session) -> list[Follow]:
+    return db.query(Follow).filter(Follow.follower_id == follower_id).all()
+
+def get_followers(followed_id: UUID, db: Session) -> list[Follow]:
+    return db.query(Follow).filter(Follow.followed_id == followed_id).all()
 
 # ----------- Setters ----------- #
 

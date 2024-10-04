@@ -2,7 +2,7 @@ from fastapi import Depends, Query, APIRouter, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import Annotated
 from ..services import user_service
-from ..schemas import FollowBase, UserPrivate, UserNotFound, AlreadyFollowing, CannotFollowSelf, NotFollowing, CannotUnFollowSelf
+from ..schemas import FollowBase, UserBase, UserPrivate, UserNotFound, AlreadyFollowing, CannotFollowSelf, NotFollowing, CannotUnFollowSelf
 from ..config.token import get_current_user
 from ..config.database import get_db
 
@@ -13,7 +13,7 @@ router = APIRouter(
 
 db_dependency = Annotated[Session, Depends(get_db)]
 user_dependency = Annotated[UserPrivate, Depends(get_current_user)]
-username = Annotated[str, Query(title="Username of user trying to follow", min_length=3, max_length=50)]
+username = Annotated[str, Query(min_length=3, max_length=50)]
 
 @router.get("/me", response_model=UserPrivate, description="Returns the profile information of the currently authenticated user.")
 def get_self(current_user: user_dependency):
@@ -59,6 +59,28 @@ def unfollow_user(
     return {"message": f"{current_user.username} successfully unfollowed {username_to_unfollow}"}
 
 
-@router.get("/view_follow_list", response_model=dict, description="Allows users to view follow relationships of any user given their username")
-def view_follow_list():
-    pass
+@router.get("/view_following", response_model=list[UserBase], description="Allows users to view following list of any user given their username")
+def view_following(
+    current_user: user_dependency,
+    username: username,
+    db: db_dependency
+):
+    try:
+        following = user_service.view_following(username=username, db=db)
+    except UserNotFound as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=exc.message)
+    
+    return following
+
+@router.get("/view_followers", response_model=list[UserBase], description="Allows users to view follower list of any user given their username")
+def view_followers(
+    current_user: user_dependency,
+    username: username,
+    db: db_dependency
+):
+    try:
+        followers = user_service.view_followers(username=username, db=db)
+    except UserNotFound as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=exc.message)
+    
+    return followers
