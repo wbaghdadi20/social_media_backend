@@ -30,9 +30,20 @@ ENV SECRET_KEY=test_secret_key
 ENV ALGORITHM=HS256
 ENV ACCESS_TOKEN_EXPIRE_MINUTES=30
 ENV SQLALCHEMY_DATABASE_URL=postgresql://test_user:test_password@test_postgres:5432/test_db
+ENV BUCKET_NAME=social-media-backend-media-store
+ENV TESTING=true
 
 # Set ENTRYPOINT to use wait-for-it.sh to wait for the test database
 ENTRYPOINT ["/wait-for-it.sh", "test_postgres:5432", "--", "pytest", "/usr/src/app/tests"]
+
+# Development Stage
+FROM base AS dev
+
+# Install development dependencies
+RUN pip install --no-cache-dir -r requirements-dev.txt
+
+# Set ENTRYPOINT to use wait-for-it.sh to wait for the database and enable reload
+ENTRYPOINT ["/wait-for-it.sh", "postgres:5432", "--", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
 # Production Stage
 FROM base AS prod

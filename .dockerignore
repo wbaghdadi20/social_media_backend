@@ -17,3 +17,4 @@ venv/*
 
 # Shell script
 local_dev_test.ps1
+local_prod_test.ps1
