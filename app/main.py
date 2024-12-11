@@ -6,6 +6,7 @@ from . import models
 from .config.database import engine, get_db
 from .routes.auth_routes import router as auth_router
 from .routes.user_routes import router as user_router
+from .routes.post_routes import router as post_router
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -19,12 +20,16 @@ app = FastAPI(
             "description": "System-level endpoints for health checks, instance information, and basic API operations."
         },
         {
+            "name": "Auth", 
+            "description": "Routes to handle user authentication and managing access tokens."
+        },
+        {
             "name": "Users", 
             "description": "Routes to handle all user-related actions"
         },
         {
-            "name": "Auth", 
-            "description": "Routes to handle user authentication and managing access tokens."
+            "name": "Posts", 
+            "description": "Routes to handle all post-related actions"
         }
     ]
 )
@@ -40,5 +45,6 @@ def get_instance():
     hostname = socket.gethostname()
     return {"instance": hostname}
 
-app.include_router(user_router)
 app.include_router(auth_router)
+app.include_router(user_router)
+app.include_router(post_router)

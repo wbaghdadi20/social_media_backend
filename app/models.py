@@ -32,16 +32,27 @@ class User(Base):
         'Follow',foreign_keys='Follow.followed_id',back_populates='followed',cascade='all, delete-orphan'
     )
 
+class Media(Base):
+    __tablename__ = 'media'
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    post_id = Column(UUID(as_uuid=True), ForeignKey('posts.id'), nullable=False)
+    media_type = Column(String(), nullable=False)  # e.g., 'image', 'video', etc.
+    file_path = Column(String(), nullable=False)   # Path or URL to the media file
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    post = relationship('Post', back_populates='media')
+
 class Post(Base):
     __tablename__ = 'posts'
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     owner_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
-    content = Column(Text, nullable=False)
     caption = Column(String(), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     owner = relationship('User', back_populates='posts')
+    media = relationship('Media', back_populates='post', cascade='all, delete-orphan')
     likes = relationship('PostLike', back_populates='post', cascade='all, delete-orphan')
     comments = relationship('Comment', back_populates='post', cascade='all, delete-orphan')
 
