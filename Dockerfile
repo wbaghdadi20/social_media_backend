@@ -30,7 +30,6 @@ ENV SECRET_KEY=test_secret_key
 ENV ALGORITHM=HS256
 ENV ACCESS_TOKEN_EXPIRE_MINUTES=30
 ENV SQLALCHEMY_DATABASE_URL=postgresql://test_user:test_password@test_postgres:5432/test_db
-ENV BUCKET_NAME=social-media-backend-media-store
 ENV TESTING=true
 
 # Set ENTRYPOINT to use wait-for-it.sh to wait for the test database
