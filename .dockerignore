@@ -16,4 +16,5 @@ venv/*
 .coverage
 
 # Shell script
+local_prod_test.ps1
 local_dev_test.ps1

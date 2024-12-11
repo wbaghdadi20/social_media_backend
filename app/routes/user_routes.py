@@ -35,7 +35,6 @@ def follow_user(
     try:
         follow = user_service.follow_user(current_user=current_user, username_to_follow=username_to_follow, db=db)
     except UserNotFound as exc:
-        print("HELLO WORLD")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=exc.message)
     except (AlreadyFollowing, CannotFollowSelf) as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)

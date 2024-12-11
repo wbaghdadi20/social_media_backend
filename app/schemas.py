@@ -53,6 +53,58 @@ class FollowBase(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class MediaBase(BaseModel):
+    """
+    Base schema for Media, shared fields for both input and output models.
+    """
+    post_id: UUID
+    media_type: str
+    file_path: str
+
+
+class MediaCreate(MediaBase):
+    """
+    Input schema for creating Media.
+    """
+    pass
+
+
+class MediaOut(MediaBase):
+    """
+    Output schema for Media, including metadata like ID and created_at.
+    """
+    id: UUID
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PostBase(BaseModel):
+    """
+    Base schema for Post, shared fields for both input and output models.
+    """
+    caption: str | None = None
+
+
+class PostCreate(PostBase):
+    """
+    Input schema for creating Post.
+    """
+    owner_id: UUID
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PostOut(PostBase):
+    """
+    Output schema for Post, including metadata and related Media.
+    """
+    id: UUID
+    created_at: datetime
+    media: list[MediaOut] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
 # ----------------- EXCEPTIONS -----------------
 
 class EmailAlreadyRegistered(Exception):
@@ -91,21 +143,19 @@ class NotFollowing(Exception):
         super().__init__(self.message)
 
 
+class PostDoesntExist(Exception):
+    def __init__(self):
+        self.message = "This post doesn't exist"
+        super().__init__(self.message)
+
+        
+class NotPostOwner(Exception):
+    def __init__(self) -> None:
+        self.message = "You are not the owner of this post"
+        super().__init__(self.message)
+
+
 # ----------------- NOT FOR NOW -----------------
-
-class PostBase(BaseModel):
-    content: str = Field(..., min_length=1)
-    caption: Optional[str] = None
-
-class PostCreate(PostBase):
-    pass
-
-class PostOut(PostBase):
-    id: UUID
-    owner_id: UUID
-    created_at: datetime
-
-    model_config = ConfigDict(from_attributes=True)
 
 class PostLikeBase(BaseModel):
     user_id: UUID
